@@ -1,0 +1,16 @@
+[Unit]
+Description=ExplorJob API
+
+[Service]
+WorkingDirectory=/var/www/explorjob-api
+ExecStart=/usr/bin/dotnet /var/www/explorjob-api/bin/Production/netcoreapp3.1/publish/ExplorJobAPI.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=explorjob-api
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target

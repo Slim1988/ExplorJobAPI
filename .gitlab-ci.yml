@@ -1,0 +1,63 @@
+---
+# ### Specify the Docker image
+image: mcr.microsoft.com/dotnet/sdk:3.1
+
+# ### Define variables
+variables:
+  # 1) Name of directory where restore and build objects are stored.
+  OBJECTS_DIRECTORY: 'obj'
+  # 2) Name of directory used for keeping restored dependencies.
+  NUGET_PACKAGES_DIRECTORY: '.nuget'
+  # 3) A relative path to the source code from project repository root.
+  SOURCE_CODE_PATH: '*/*/'
+  # 4) A relative path to the unit test folder from project repository root.
+  UNITTEST_FOLDER: './bin/Release/'
+
+# ### Define stage list
+stages:
+  - Build
+  - Test
+  - Deploy
+
+#before_script:
+#  - dotnet tool install --global dotnet-ef
+#  - 'dotnet restore'
+#  - apt-get install -y openssl
+
+build:
+  stage: Build
+  only:
+    - develop
+  script:
+    - if [ ! -f Auth/Cert/cert.pfx ]; then openssl pkcs12 -in Auth/Cert/Dev/cert.pem -inkey Auth/Cert/Dev/privatekey.pem -export -out Auth/Cert/cert.pfx -password pass:$SECRET_KEY; fi;
+    #- if [ ! -f appsettings.Development.json ]; then gpg  --batch --passphrase $SECRET_KEY -d appsettings.Development.json.gpg > test3.json; fi;
+    #- if [ ! -f appsettings.Development.json ]; then cat appsettings.Development.json.gpg | gpg --import-options import-show --import --batch --yes --passphrase $SECRET_KEY --output appsettings.Development.json1; fi;
+
+    - 'dotnet build'
+    #- if [ ! -d Resources ]; then cp -rf resources Resources; fi;
+    #- 'dotnet watch run'
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - Publish/
+  
+test:
+    stage: Test
+    only:
+      - develop
+    script:
+        - 'dotnet test'
+    dependencies:
+    - build
+
+#deploy_job:
+#  stage: Deploy
+#  only:
+#    - developtest
+#  script:
+#    - 'xcopy /y /s ".\src\CiCdExample\bin\Release\Publish\*.*" "C:\inetpub\wwwroot\ci-cd-example"'
+#  dependencies:
+#    - build
+#    - test
+
+

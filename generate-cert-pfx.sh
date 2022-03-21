@@ -1,0 +1,1 @@
+openssl pkcs12 -in Auth/Cert/Dev/cert.pem -inkey Auth/Cert/Dev/privatekey.pem -export -out Auth/Cert/cert.pfx
